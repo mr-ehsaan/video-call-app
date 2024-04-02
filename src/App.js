@@ -1,17 +1,31 @@
 // src/App.js
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './Home';
-import Room from './Room';
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './AuthContext';
+import SignIn from './SignIn';
+import RoomEntry from './RoomEntry';
+import VideoCall from './VideoCall';
+
+function VideoRoomApp() {
+  const { currentUser } = useAuth();
+  const [roomId, setRoomId] = useState('');
+  const handleRoomLeave = () => {
+    window.location.reload();
+    setRoomId(''); // Reset roomId to navigate back to the main page
+  };
+  return (
+    <div>
+      {!currentUser && <SignIn />}
+      {currentUser && !roomId && <RoomEntry onRoomJoined={setRoomId} />}
+      {currentUser && roomId && <VideoCall roomId={roomId} onLeaveRoom={handleRoomLeave}/>}
+    </div>
+  );
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/room/:roomId" element={<Room />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <VideoRoomApp />
+    </AuthProvider>
   );
 }
 

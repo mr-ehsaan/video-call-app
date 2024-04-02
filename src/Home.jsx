@@ -1,15 +1,15 @@
 // src/Home.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { database } from './firebase-config'; // Adjust the import path as necessary
-import { ref, push, set, serverTimestamp } from 'firebase/database';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { database } from "./firebase-config"; // Adjust the import path as necessary
+import { ref, push, set, serverTimestamp, get } from "firebase/database";
 
 const Home = () => {
-  const [roomId, setRoomId] = useState('');
+  const [roomId, setRoomId] = useState("");
   const navigate = useNavigate();
 
   const createRoom = async () => {
-    const roomRef = ref(database, 'rooms');
+    const roomRef = ref(database, "rooms");
     const newRoomRef = push(roomRef);
     set(newRoomRef, {
       created: serverTimestamp(),
@@ -19,8 +19,15 @@ const Home = () => {
   };
 
   const joinRoom = () => {
-    if (roomId !== '') {
-      navigate(`/room/${roomId}`);
+    if (roomId !== "") {
+      get(ref(database, `rooms/${roomId}`)).then((snapshot) => {
+        if (!snapshot.exists()) {
+          alert("Room ID is incorrect. Please enter a correct Room ID.");
+          // Redirect to home or any desired route
+        } else {
+          navigate(`/room/${roomId}`);
+        }
+      });
     }
   };
 
